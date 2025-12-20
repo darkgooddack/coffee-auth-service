@@ -15,20 +15,8 @@ spec:
     spec:
       containers:
         - name: celery
-          image: your-dockerhub/coffee-auth-service:latest
-          command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
-          env:
-            - name: REDIS_URL
-              value: "redis://redis:6379/0"
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
-            - name: POSTGRES_USER
-              value: "authuser"
-            - name: POSTGRES_PASSWORD
-              value: "authpassword"
-            - name: POSTGRES_DB
-              value: "authdb"
-            - name: POSTGRES_HOST
-              value: "postgres.auth-dev.svc.cluster.local"
-            - name: POSTGRES_PORT
-              value: "5432"
+          image: ulyanapitsukha/coffee-auth-service:latest
+          command: ["celery", "-A", "app.utils.celery_app.celery_app", "worker", "--loglevel=info", "-P", "solo"]
+          envFrom:
+            - secretRef:
+                name: coffee-auth-secrets

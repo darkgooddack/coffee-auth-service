@@ -19,11 +19,21 @@ spec:
           image: postgres:15
           env:
             - name: POSTGRES_USER
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: coffee-auth-secrets
+                  key: DB__USER
             - name: POSTGRES_PASSWORD
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: coffee-auth-secrets
+                  key: DB__PASSWORD
             - name: POSTGRES_DB
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: coffee-auth-secrets
+                  key: DB__NAME
+
           ports:
             - containerPort: 5432
           volumeMounts:

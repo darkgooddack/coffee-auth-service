@@ -18,8 +18,10 @@ spec:
           image: traefik:v2.10
           args:
             - "--api.insecure=true"
-            - "--providers.providers.kubernetesingress"
+            - "--providers.kubernetesingress"
             - "--entrypoints.web.address=:80"
           ports:
-            - containerPort: 80
-            - containerPort: 8080
+            - name: web
+              containerPort: 80
+            - name: dashboard
+              containerPort: 8080
