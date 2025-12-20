@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffee-auth-api
+  namespace: auth-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee-auth-api
+  template:
+    metadata:
+      labels:
+        app: coffee-auth-api
+    spec:
+      containers:
+        - name: api
+          image: your-dockerhub/coffee-auth-service:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: REDIS_URL
+              value: "redis://redis:6379/0"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres"
+            - name: POSTGRES_DB
+              value: "postgres"
+            - name: POSTGRES_HOST
+              value: "postgres.auth-dev.svc.cluster.local"
+            - name: POSTGRES_PORT
+              value: "5432"
