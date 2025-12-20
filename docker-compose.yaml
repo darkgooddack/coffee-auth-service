@@ -1,0 +1,89 @@
+
+services:
+  coffee_auth_app:
+    build: .
+    container_name: coffee_auth_app
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - coffee_auth_db
+      - coffee_auth_redis
+      - coffee_auth_kafka
+
+  coffee_auth_db:
+    image: postgres:17
+    container_name: coffee_auth_db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "6432:5432"
+    volumes:
+      - coffee_auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coffee_auth_redis:
+    image: redis:7-alpine
+    container_name: coffee_auth_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: [
+      "redis-server",
+      "--save", "60", "1",
+      "--maxmemory", "256mb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--loglevel", "warning"
+    ]
+    volumes:
+      - coffee_auth_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coffee_auth_kafka:
+    image: bitnami/kafka:latest
+    container_name: coffee_auth_kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://coffee_auth_kafka:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_KRAFT_MODE=yes
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - coffee_auth_zookeeper_placeholder
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server coffee_auth_kafka:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker_vg:
+    build: .
+    container_name: coffee_auth_worker
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: celery -A app.utils.celery_app.celery_app worker --loglevel=info -P solo
+    depends_on:
+      - coffee_auth_app
+      - coffee_auth_db
+      - coffee_auth_redis
+      - coffee_auth_kafka
+
+volumes:
+  coffee_auth_postgres_data:
+  coffee_auth_redis_data:
