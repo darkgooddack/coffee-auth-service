@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 
 
 class EmailVerificationEvent(BaseModel):
     email: EmailStr
-    code: int = Field(ge=10000, le=99999)
+    code: str

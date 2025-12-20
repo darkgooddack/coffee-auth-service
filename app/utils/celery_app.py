@@ -6,3 +6,6 @@ celery_app = Celery(
     broker=settings.redis.broker_url,
     backend=settings.redis.backend_url
 )
+
+import app.tasks.email_tasks
+import app.tasks.user_tasks

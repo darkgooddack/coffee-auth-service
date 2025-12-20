@@ -60,9 +60,10 @@ services:
     image: confluentinc/cp-kafka:7.6.1
     container_name: coffee_auth_kafka
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
+      CLUSTER_ID: n2CAxqxsTFulgzbLi4yn5g
+
       KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@coffee_auth_kafka:9093
 
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093

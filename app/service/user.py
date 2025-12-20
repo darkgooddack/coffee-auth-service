@@ -1,4 +1,5 @@
 from app.core.security import hash_password, verify_password, create_token_pair
+from app.models.user import User
 from app.schema.auth import RegisterOut, RegisterIn, LoginIn, LoginOut, VerifyEmailIn, VerifyEmailOut
 from app.utils.error import UserAlreadyExistsError, InvalidCredentialsError, InvalidVerificationCodeError
 from app.tasks.email_tasks import send_verification_email
@@ -16,12 +17,14 @@ class UserService:
         if existing:
             raise UserAlreadyExistsError()
 
-        await self.repo.save_user(
+        user = User(
             email=data.email,
-            password_hash=hash_password(data.password)
+            hash_password=hash_password(data.password)
         )
 
-        await send_verification_email.delay(data.email)
+        await self.repo.save_user(user)
+
+        send_verification_email.delay(data.email)
 
         return RegisterOut(message="Пользователь зарегистрирован")
 
