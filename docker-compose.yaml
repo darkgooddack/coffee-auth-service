@@ -11,6 +11,8 @@ services:
       - coffee_auth_db
       - coffee_auth_redis
       - coffee_auth_kafka
+    networks:
+      - coffee_auth_network
 
   coffee_auth_db:
     image: postgres:17
@@ -28,6 +30,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - coffee_auth_network
 
   coffee_auth_redis:
     image: redis:7-alpine
@@ -49,27 +53,32 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - coffee_auth_network
 
   coffee_auth_kafka:
-    image: bitnami/kafka:latest
+    image: confluentinc/cp-kafka:7.6.1
     container_name: coffee_auth_kafka
     environment:
-      - KAFKA_BROKER_ID=1
-      - KAFKA_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://coffee_auth_kafka:9092
-      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
-      - KAFKA_KRAFT_MODE=yes
-      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
-      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      KAFKA_BROKER_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@coffee_auth_kafka:9093
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://coffee_auth_kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     ports:
       - "9092:9092"
-    depends_on:
-      - coffee_auth_zookeeper_placeholder
-    healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server coffee_auth_kafka:9092 --list || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    networks:
+      - coffee_auth_network
+
 
   worker_vg:
     build: .
@@ -83,7 +92,13 @@ services:
       - coffee_auth_db
       - coffee_auth_redis
       - coffee_auth_kafka
+    networks:
+      - coffee_auth_network
 
 volumes:
   coffee_auth_postgres_data:
   coffee_auth_redis_data:
+
+networks:
+  coffee_auth_network:
+    driver: bridge
