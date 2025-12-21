@@ -4,9 +4,11 @@ metadata:
   name: kafka
   namespace: auth-dev
 spec:
+  clusterIP: None
   selector:
     app: kafka
   ports:
-    - port: 9092
-      name: broker
-  clusterIP: None
+    - name: broker
+      port: 9092
+    - name: controller
+      port: 9093

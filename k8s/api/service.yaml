@@ -4,7 +4,7 @@ metadata:
   name: coffee-auth-api
   namespace: auth-dev
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: coffee-auth-api
   ports:

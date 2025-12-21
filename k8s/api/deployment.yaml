@@ -16,6 +16,7 @@ spec:
       containers:
         - name: api
           image: ulyanapitsukha/coffee-auth-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           envFrom:

@@ -45,7 +45,7 @@ class RedisCache:
             return None
         return int(code)
 
-    async def delete_verification_code(self, email: str):
+    async def delete_verification_code(self, email: EmailStr):
         if self.client is None:
             await self.start()
         await self.client.delete(f"email_verification:{email}")
