@@ -22,9 +22,9 @@ class UserService:
             hash_password=hash_password(data.password)
         )
 
-        await self.repo.save_user(user)
+        user = await self.repo.save_user(user)
 
-        send_verification_email.delay(data.email)
+        send_verification_email.delay(data.email, user.id)
 
         return RegisterOut(message="Пользователь зарегистрирован")
 

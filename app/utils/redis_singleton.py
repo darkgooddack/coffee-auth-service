@@ -1,10 +1,9 @@
 import redis.asyncio as aioredis
 import json
 from typing import Any
-
 from pydantic import EmailStr
-
 from app.core.config import settings
+
 
 class RedisCache:
     def __init__(self, url: str = settings.redis.url):
@@ -39,7 +38,7 @@ class RedisCache:
     async def set_verification_code(self, email: EmailStr, code: str, ttl: int = 300):
         await self.set(f"email_verification:{email}", code, expire=ttl)
 
-    async def get_verification_code(self, email: str) -> int | None:
+    async def get_verification_code(self, email: EmailStr) -> int | None:
         code = await self.get(f"email_verification:{email}")
         if code is None:
             return None
