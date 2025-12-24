@@ -1,5 +1,3 @@
-import uuid
-
 from pydantic import BaseModel, EmailStr
 
 
@@ -8,4 +6,4 @@ class EmailVerificationSendCommand(BaseModel):
     code: str
 
 class UserRegisteredEvent(BaseModel):
-    user_id: uuid.UUID
+    user_id: str

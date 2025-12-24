@@ -1,3 +1,4 @@
+from app.core.logger import logger
 from app.core.security import hash_password, verify_password, create_token_pair
 from app.models.user import User
 from app.schema.auth import RegisterOut, RegisterIn, LoginIn, LoginOut, VerifyEmailIn, VerifyEmailOut
@@ -37,7 +38,7 @@ class UserService:
         stored_code = await redis_cache.get_verification_code(data.email)
         if stored_code is None or str(stored_code) != str(data.code):
             raise InvalidVerificationCodeError("Неверный код подтверждения")
-
+        logger.info(f"Before confirm_email_task {data.email}")
         confirm_email_task.delay(data.email)
 
         return VerifyEmailOut(message="Почта подтверждена")
