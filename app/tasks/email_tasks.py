@@ -6,7 +6,7 @@ from pydantic import EmailStr
 from app.utils.celery_app import celery_app
 from app.schema.events import EmailVerificationSendCommand, UserRegisteredEvent
 from app.utils.redis_singleton import get_redis_cache
-from app.utils.kafka_singleton import get_kafka_producer
+from app.kafka.producer import get_kafka_producer
 from app.core.logger import logger
 
 
